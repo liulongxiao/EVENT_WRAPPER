@@ -92,7 +92,8 @@ public:
 
 };
 
-
+template <typename Head,typename ...Args>
+class MutiListenerInterface;
 
 template <typename Head,typename ...Args>
 class MutiListenerInterface:public  MutiListenerInterface<Args...>,public ListenerInterFace<Head>
@@ -103,15 +104,20 @@ public:
         static_cast<ListenerInterFace<Head>*>(this)->regist(evbus);
     }
 
-    void regist(MultiSender<Head,Args...> * sender){
+
+
+    template<typename T>
+    void regist(T * sender){
         regist(static_cast<EventBus<Head>*>(sender));
-        MutiListenerInterface<Args...>::regist(static_cast<MultiSender<Args...>*>(sender));
+        MutiListenerInterface<Args...>::regist(sender);
     }
+
 
 };
 
 template <typename Tail>
 class MutiListenerInterface<Tail>:public ListenerInterFace<Tail>{
+
 
 public:
     void regist(EventBus<Tail> * evbus){
@@ -123,6 +129,7 @@ public:
 
 
 };
+
 
 
 //-----------------------------------------------
@@ -150,42 +157,3 @@ public:
 
 
 
-
-
-int main() {
-
-    IntStringSrtuctLsner ls;
-    MultiSender<int,std::string,testStruct> sender;
-
-    ls.regist(&sender);
-
-    for(int i=0;i!=100;++i){
-        sender.pushData(new int(i));
-        sender.pushData(new std::string(std::to_string(i)));
-        sender.pushData(new testStruct{"struct",i});
-    }
-    sender.loop();
-
-//
-//    IntStringSrtuctLsner ls;
-//    MultiSender<int,testStruct,std::string> sender;
-//    sender.addListener(ls);
-////    EventBus<int> * intbus=new EventBus<int>;
-////    EventBus<std::string> * stringbus=new EventBus<std::string>;
-////    EventBus<testStruct> * structbus=new EventBus<testStruct>;
-////    ls.regist(intbus);
-////    ls.regist(stringbus);
-////    ls.regist(structbus);
-//
-//    for(int i=0;i!=100;++i){
-//        sender.pushData(new int(i));
-//        sender.pushData(new std::string(std::to_string(i)));
-//        sender.pushData(new testStruct{"struct",i});
-//    }
-
-//    intbus->loop();
-//    stringbus->loop();
-//    structbus->loop();
-//
-   //  sender.loop<int>();
-}
